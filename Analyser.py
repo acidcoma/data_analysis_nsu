@@ -36,6 +36,19 @@ class Analyser:
         self.ordinal_list = order
         print("Now the order is: ", self.ordinal_list, "\n")
 
+    def form_norm_ordinal_list(self):
+        result = []
+        for i in self.objects_list:
+            feature = i.ordinal_feature
+            if feature == "mass market":
+                val = 0
+            elif feature == "middle":
+                val= 1
+            else:
+                val = 2
+            result.append(val)
+        return result
+
     @staticmethod
     # сильная шкала
     def calculate_absolute_measure(value1, value2, max, min):
@@ -44,27 +57,37 @@ class Analyser:
 
     @staticmethod
     # шкала порядка
-    def calculate_ordinal_measure(value1, value2, values_list):
-        # if value1 == "mass market":
-        #     value1_ind = 1
-        # elif value1 == "middle":
-        #     value1_ind = 2
-        # else:
-        #     value1_ind = 3
-        #
-        # if value2 == "mass market":
-        #     value2_ind = 1
-        # elif value2 == "middle":
-        #     value2_ind = 2
-        # else:
-        #     value2_ind = 3
+    def calculate_ordinal_measure(value1, value2, all_values_list):
+
+        #for ma in all_values_list:
+        #    print("ORDINAL VALUE OF DATASET is &", ma)
+        #print("val 1", value1)
+        #print("val 2", value2)
+
+        if value1 == "mass market":
+            value1_ind = 0
+        elif value1 == "middle":
+            value1_ind = 1
+        else:
+            value1_ind = 2
+
+        if value2 == "mass market":
+            value2_ind = 0
+        elif value2 == "middle":
+            value2_ind = 1
+        else:
+            value2_ind = 2
+
+        #print("value1 ind", value1_ind)
+        #print("value2 ind", value2_ind)
+
         norm = 0
-        n = len(values_list)
-        value1_ind = values_list.index(value1) #порядковое значение -> его иденкс в упорядоченном списке порядквых значений
-        value2_ind = values_list.index(value2)
-        # for k in [1, 2, 3]:
-        for k in range(n):
-            if (value1_ind < k and value2_ind < k) or (value1_ind > k and value2_ind > k) or (value1_ind == k) & (k == value2_ind):
+        #n = len(values_list)
+        # value1_ind = values_list.index(value1) #порядковое значение -> его иденкс в упорядоченном списке порядковых значений
+        # value2_ind = values_list.index(value2)
+        for k in all_values_list:
+        #for k in range(n):
+            if (value1_ind < k and value2_ind < k) or (value1_ind > k and value2_ind > k) or (value1_ind == k and k == value2_ind):
                 norm += 0
             elif (value1_ind < k and value2_ind > k) or (value1_ind > k and value2_ind < k):
                 norm += 1
@@ -72,8 +95,12 @@ class Analyser:
                 norm += 0.5
             else:
                 print("error")
+            #print("k is", k)
+            #print("norm is", norm)
 
-        result_norm = 0.5 * norm
+        result_norm = 1/9 * norm
+        #print("result norm", result_norm)
+        result_norm = float("%.2f" % result_norm)
         return result_norm
 
     @staticmethod
@@ -101,7 +128,7 @@ class Analyser:
                                                                     object2.absolute_feature,
                                                                     self.absolute_maximum,
                                                                     self.absolute_minimum)
-                ordinal_norm = Analyser.calculate_ordinal_measure(object1.ordinal_feature, object2.ordinal_feature, self.ordinal_list)
+                ordinal_norm = Analyser.calculate_ordinal_measure(object1.ordinal_feature, object2.ordinal_feature, Analyser.form_norm_ordinal_list(self))
                 nominal_norm_first = Analyser.calculate_nominal_measure(object1.first_nominal_feature,
                                                                         object2.first_nominal_feature,
                                                                         self.nominal_list_first)
@@ -114,6 +141,8 @@ class Analyser:
                 distance = (1 / math.sqrt(10)) * math.sqrt(
                     absolute_norm ** 2 + ordinal_norm ** 2 + nominal_norm_first ** 2
                     + nominal_norm_second ** 2 + nominal_norm_third ** 2)
+                print(absolute_norm, ordinal_norm, nominal_norm_first,
+                     nominal_norm_second, nominal_norm_third )
                 distance = float("%.2f" % distance)
                 distance_info = DistanceInfo(self.objects_list.index(object1)+1, self.objects_list.index(object2)+1,
                                              distance)
@@ -186,7 +215,9 @@ class Analyser:
         norm_between_first_and_third = 0
         norm_between_second_and_third = 0
 
-        for i in range(10):
+
+
+        for i in range(9):
             for j in range(10):
                 object1 = self.objects_list[i]
                 object2 = self.objects_list[j]
